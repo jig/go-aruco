@@ -1,12 +1,8 @@
-package main
+package aruco
 
 import (
-	"bufio"
-	"encoding/json"
 	"errors"
-	"log"
 	"math"
-	"os/exec"
 )
 
 type Markers []Marker
@@ -19,37 +15,6 @@ type Marker struct {
 }
 
 type Corners []float64
-
-func main() {
-	cmd := exec.Command("python", "../../jig/aruco/aruco.py")
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
-	}
-
-	scanner := bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		line := scanner.Text()
-		// log.Println(line)
-		markers := Markers{}
-		if err := json.Unmarshal([]byte(line), &markers); err != nil {
-			log.Fatal(err)
-		}
-
-		if m7, err := markers.Marker(7); err != nil {
-			log.Printf("Marker 7 not visible\n")
-		} else {
-			log.Printf("Marker 7: Distance %.0fmm\tPose angle %.0f°; \tcentered at %.2f\t%.2f\n", m7.Distance(), m7.VerticalPoseAngle(), m7.CenterX(), m7.CenterY())
-		}
-
-	}
-	if err := cmd.Wait(); err != nil {
-		log.Fatal(err)
-	}
-}
 
 func (markers *Markers) Marker(id int) (*Marker, error) {
 	for _, marker := range *markers {
@@ -101,6 +66,14 @@ func (c *Marker) CenterX() float64 {
 	return centerX/4 - float64(c.ImageWidth)/2
 }
 
+func (c *Marker) ViewAngleX() float64 {
+	return c.CenterX() / 464 * 25 / 57.2958
+}
+
+func (c *Marker) ViewAngleY() float64 {
+	return c.CenterY() / 464 * 25 / 57.2958
+}
+
 func (c *Marker) CenterY() float64 {
 	centerY := 0.0
 	for i, xy := range c.Corners[0] {
@@ -109,7 +82,7 @@ func (c *Marker) CenterY() float64 {
 			return -1
 		}
 	}
-	return centerY/4 - float64(c.ImageHeight)/2
+	return -(centerY/4 - float64(c.ImageHeight)/2)
 }
 
 func (c *Marker) VerticalPoseRatio() float64 {
@@ -131,5 +104,5 @@ func (c *Marker) VerticalPoseAngle() float64 {
 	if ratio > 1 {
 		ratio = 1
 	}
-	return math.Acos(ratio) * 57.2958
+	return math.Acos(ratio)
 }
