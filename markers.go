@@ -52,7 +52,11 @@ func (c *Marker) Size() float64 {
 }
 
 func (c *Marker) Distance() float64 {
-	return 1000.0 * (48.0 / c.Size())
+	// for a 185 mm marker
+	return 2910.0 * (48.0 / c.Size())
+
+	// in marker units
+	// return 15.73 * (48.0 / c.Size())
 }
 
 func (c *Marker) CenterX() float64 {
