@@ -10,11 +10,21 @@ import (
 )
 
 type Task struct {
-	markersPositions MarkersPositions
-	cmd              *exec.Cmd
-	scanner          *bufio.Scanner
-	mu               sync.RWMutex
-	ready            bool
+	markers []Marker
+	cmd     *exec.Cmd
+	scanner *bufio.Scanner
+	mu      sync.RWMutex
+	ready   bool
+}
+
+type Marker struct {
+	ID     int     `json:"id"`
+	X      float64 `json:"x"`
+	Y      float64 `json:"y"`
+	Z      float64 `json:"z"`
+	RollX  float64 `json:"roll-x"`
+	PitchY float64 `json:"pitch-y"`
+	YawZ   float64 `json:"yaw-z"`
 }
 
 func NewTask() *Task {
@@ -39,7 +49,7 @@ func (task *Task) Run() {
 			line := task.scanner.Text()
 			task.mu.Lock()
 			defer task.mu.Unlock()
-			if err := json.Unmarshal([]byte(line), &task.markersPositions); err != nil {
+			if err := json.Unmarshal([]byte(line), &task.markers); err != nil {
 				log.Println(err)
 			}
 			task.ready = task.isReady()
@@ -50,27 +60,17 @@ func (task *Task) Run() {
 	}
 }
 
-func (task *Task) GetMarkersPositions() (MarkersPositions, error) {
-	task.mu.RLock()
-	defer task.mu.RUnlock()
-
-	return task.markersPositions, nil
-}
-
-func (task *Task) GetMarkerPosition(markerID int) (*MarkerPosition, error) {
-	task.mu.RLock()
-	defer task.mu.RUnlock()
-
-	for _, m := range task.markersPositions {
-		if m.ID == markerID {
-			return task.markersPositions.MarkerPosition(markerID)
+func (task *Task) Marker(id int) (*Marker, error) {
+	for _, marker := range task.markers {
+		if marker.ID == id {
+			return &marker, nil
 		}
 	}
-	return nil, errors.New("marker not found")
+	return nil, errors.New("not found")
 }
 
 func (task *Task) isReady() bool {
-	for _, m := range task.markersPositions {
+	for _, m := range task.markers {
 		if m.ID == -1 {
 			return false
 		}
