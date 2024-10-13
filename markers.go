@@ -2,6 +2,7 @@ package aruco
 
 import (
 	"bufio"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"log"
@@ -27,8 +28,12 @@ type Marker struct {
 	YawZ   float64 `json:"yaw-z"`
 }
 
+//go:embed markers.py
+var markersPythonCode string
+
 func NewTask() *Task {
-	cmd := exec.Command("python", "/home/pi/git/src/github.com/jig/go-aruco/markers.py")
+	// cmd := exec.Command("python", "/home/pi/git/src/github.com/jig/go-aruco/markers.py")
+	cmd := exec.Command("python", "-c", markersPythonCode)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
