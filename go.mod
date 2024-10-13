@@ -1,3 +1,3 @@
 module github.com/jig/go-aruco
 
-go 1.22
+go 1.23
