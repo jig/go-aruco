@@ -38,14 +38,12 @@ func NewTask() *Task {
 
 func (task *Task) Run() {
 	for task.scanner.Scan() {
-		func() {
-			line := task.scanner.Text()
-			markers := []Marker{}
-			if err := json.Unmarshal([]byte(line), &markers); err != nil {
-				log.Println(err)
-			}
-			task.MarkersChannel <- markers
-		}()
+		line := task.scanner.Text()
+		markers := []Marker{}
+		if err := json.Unmarshal([]byte(line), &markers); err != nil {
+			log.Println(err)
+		}
+		task.MarkersChannel <- markers
 	}
 	if err := task.cmd.Wait(); err != nil {
 		log.Fatalf("Python subroutine failed: %s", err)
