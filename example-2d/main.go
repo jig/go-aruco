@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	aruco "github.com/jig/go-aruco"
 )
@@ -18,7 +17,6 @@ func main() {
 
 	log.Println("Waiting for samples...")
 	for markers := range task.MarkersChannel {
-		time.Sleep(250 * time.Millisecond)
 		if marker, err := markers.Marker(markerID); err != nil {
 			log.Printf("Marker %d not visible\n", markerID)
 		} else {
