@@ -1,18 +1,11 @@
 #!/usr/bin/python3
 
-# padding to avoid stdout Linux buffering to delay the delivery
-# see http://www.pixelbeat.org/programming/stdio_buffering/ for an explanation an potential improvements on this code
-padding = ' ' * 13642
-
-print('[{"id":-1}]', padding)
 import cv2
-print('[{"id":-1}]', padding)
 from picamera2 import MappedArray, Picamera2, Preview
 import json
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import math
-print('[{"id":-1}]', padding)
 
 this_aruco_dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_50)
 this_aruco_parameters = cv2.aruco.DetectorParameters_create()
@@ -77,6 +70,10 @@ camera_matrix = np.array([
   ])
 
 distortion_coefficients = np.array([ -0.046250204900546286, 0.15249055104559342, 0.001339977338210037, -0.0011487231459689135, -0.1079298904091414 ])
+
+# padding to avoid stdout Linux buffering to delay the delivery
+# see http://www.pixelbeat.org/programming/stdio_buffering/ for an explanation an potential improvements on this code
+padding = ' ' * 13642
 
 c = 0
 while True:

@@ -17,12 +17,9 @@ func main() {
 	go task.Run()
 
 	log.Println("Waiting for samples...")
-	for !task.IsReady() {
+	for markers := range task.MarkersChannel {
 		time.Sleep(250 * time.Millisecond)
-	}
-	for {
-		time.Sleep(250 * time.Millisecond)
-		if marker, err := task.Marker(markerID); err != nil {
+		if marker, err := markers.Marker(markerID); err != nil {
 			log.Printf("Marker %d not visible\n", markerID)
 		} else {
 			log.Printf("Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f°\n", markerID, marker.Z*100, marker.X*100, marker.PitchY)
