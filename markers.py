@@ -4,15 +4,15 @@
 # see http://www.pixelbeat.org/programming/stdio_buffering/ for an explanation an potential improvements on this code
 padding = ' ' * 13642
 
-print("[]", padding)
+print('[{"id":-1}]', padding)
 import cv2
-print("[]", padding)
+print('[{"id":-1}]', padding)
 from picamera2 import MappedArray, Picamera2, Preview
 import json
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import math
-print("[]", padding)
+print('[{"id":-1}]', padding)
 
 this_aruco_dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_50)
 this_aruco_parameters = cv2.aruco.DetectorParameters_create()

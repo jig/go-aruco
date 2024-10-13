@@ -3,20 +3,22 @@ package aruco
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"log"
 	"os/exec"
 	"sync"
 )
 
-type TaskPosition struct {
+type Task struct {
 	markersPositions MarkersPositions
 	cmd              *exec.Cmd
 	scanner          *bufio.Scanner
 	mu               sync.RWMutex
+	ready            bool
 }
 
-func NewTaskPosition() *TaskPosition {
-	cmd := exec.Command("python", "/home/pi/git/src/github.com/jig/borinot7/aruco/python/aruco-pos.py")
+func NewTask() *Task {
+	cmd := exec.Command("python", "/home/pi/git/src/github.com/jig/go-aruco/markers.py")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -24,13 +26,14 @@ func NewTaskPosition() *TaskPosition {
 	if err := cmd.Start(); err != nil {
 		log.Fatal(err)
 	}
-	return &TaskPosition{
+	return &Task{
 		cmd:     cmd,
 		scanner: bufio.NewScanner(stdout),
+		ready:   false,
 	}
 }
 
-func (task *TaskPosition) Run() {
+func (task *Task) Run() {
 	for task.scanner.Scan() {
 		func() {
 			line := task.scanner.Text()
@@ -39,7 +42,7 @@ func (task *TaskPosition) Run() {
 			if err := json.Unmarshal([]byte(line), &task.markersPositions); err != nil {
 				log.Println(err)
 			}
-			// log.Println("...")
+			task.ready = task.isReady()
 		}()
 	}
 	if err := task.cmd.Wait(); err != nil {
@@ -47,16 +50,34 @@ func (task *TaskPosition) Run() {
 	}
 }
 
-func (task *TaskPosition) GetMarkersPositions() (MarkersPositions, error) {
+func (task *Task) GetMarkersPositions() (MarkersPositions, error) {
 	task.mu.RLock()
 	defer task.mu.RUnlock()
 
 	return task.markersPositions, nil
 }
 
-func (task *TaskPosition) GetMarkerPosition(markerID int) (*MarkerPosition, error) {
+func (task *Task) GetMarkerPosition(markerID int) (*MarkerPosition, error) {
 	task.mu.RLock()
 	defer task.mu.RUnlock()
 
-	return task.markersPositions.MarkerPosition(markerID)
+	for _, m := range task.markersPositions {
+		if m.ID == markerID {
+			return task.markersPositions.MarkerPosition(markerID)
+		}
+	}
+	return nil, errors.New("marker not found")
+}
+
+func (task *Task) isReady() bool {
+	for _, m := range task.markersPositions {
+		if m.ID == -1 {
+			return false
+		}
+	}
+	return true
+}
+
+func (task *Task) IsReady() bool {
+	return task.ready
 }
