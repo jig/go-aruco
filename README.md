@@ -1,14 +1,14 @@
 # go-aruco
 
-This Go (Golang) package `aruco` that provides a JSON stream through stdout of the coordinates of the Aruco markers on view.
+This Go (Golang) package provides the position of Aruco markers in view of the camera. It provides the translation vector and the rotation vector.
 
-The package uses Python. Tested on a Raspberry Pi 4 with Camera Module 3 WIDE infrared with Raspberry Pi OS "Bookworm".
+The package uses Python to access both the Camera and OpenCV library.
+
+Tested on a Raspberry Pi 4 with Camera Module 3 WIDE infrared with Raspberry Pi OS "Bookworm".
 
 See the sample code on [example-2d](./example-2d/) on how to use it.
 
 # Install dependencies
-
-_Installation process pending to be reviewed_
 
 You need Go compiler (tested with Go compiler v1.23.2) an the Python interpreter (tested on Python v3.13) and the Python OpenCV dependencies (tested with v4.10).
 
@@ -16,9 +16,9 @@ To install the Python dependencies use the Raspberry OS package manager:
 
 ```bash
 sudo apt update && sudo apt upgrade -y && sudo apt install -y \
- 	openocd \
+    python3 \
     opencv-data \
-   	python3-opencv \
+    python3-opencv \
     python3-scipy
 ```
 
