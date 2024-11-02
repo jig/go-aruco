@@ -40,7 +40,7 @@ def euler_from_quaternion(x, y, z, w):
   return roll_x, pitch_y, yaw_z # in radians
 
 picam2 = Picamera2()
-picam2.start_preview(Preview.DRM, x=0, y=0, width=1024, height=600)
+# picam2.start_preview(Preview.DRM, x=0, y=0, width=1024, height=600)
 
 
 # 4608 × 2592
