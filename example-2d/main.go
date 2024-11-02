@@ -1,51 +1,42 @@
 package main
 
 import (
-	_ "embed"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/jig/go-aruco"
-	exec "github.com/jig/go-exec"
 )
 
-const markerID = 18
+const markerID = 6
 
 func main() {
-	pythonAruco, err := exec.NewCmd("python", "-c", markersPythonCode)
+	pythonAruco, err := aruco.New()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
 	go func() {
-		exitCode, err := pythonAruco.Run()
-		if err != nil {
+		if _, err := pythonAruco.Run(); err != nil {
 			fmt.Println(err)
+			os.Exit(1)
 		}
-		os.Exit(exitCode)
+		wg.Done()
 	}()
-	for data := range pythonAruco.Output() {
-		if data.EOF {
-			break
-		} else if data.IsStderr {
-			fmt.Println("ERR:", data.Value)
-		} else {
-			markers := aruco.Markers{}
-			if err := json.Unmarshal([]byte(data.Value), &markers); err != nil {
-				log.Println(err)
-				continue
-			}
-			if marker, err := markers.Marker(markerID); err != nil {
-				log.Printf("Marker %d not visible\n", markerID)
-			} else {
+
+	wg.Add(1)
+	go func() {
+		pythonAruco.Dispatch(func(markers aruco.Markers) {
+			for _, marker := range markers {
 				log.Printf("Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f°\n", markerID, marker.Z*100, marker.X*100, marker.PitchY)
 			}
-		}
-	}
+		})
+		wg.Done()
+	}()
+	wg.Wait()
 }
-
-//go:embed markers.py
-var markersPythonCode string
