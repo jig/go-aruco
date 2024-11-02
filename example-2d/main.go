@@ -8,13 +8,13 @@ import (
 	"os"
 
 	"github.com/jig/go-aruco"
-	cmd "github.com/jig/go-aruco/refactor"
+	exec "github.com/jig/go-exec"
 )
 
 const markerID = 18
 
 func main() {
-	pythonAruco, err := cmd.NewCmd("python", "-c", markersPythonCode)
+	pythonAruco, err := exec.NewCmd("python", "-c", markersPythonCode)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
