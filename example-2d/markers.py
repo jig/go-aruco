@@ -40,10 +40,14 @@ def euler_from_quaternion(x, y, z, w):
   return roll_x, pitch_y, yaw_z # in radians
 
 picam2 = Picamera2()
+# picam2.start_preview(Preview.DRM, x=0, y=0, width=1024, height=600)
+
 
 # 4608 × 2592
-config = picam2.create_preview_configuration(main={"size": (4608, 2592)},
-                                             lores={"size": (4608, 2592), "format": "YUV420"})
+config = picam2.create_preview_configuration(
+  main={"size": (4608, 2592)},
+  lores={"size": (4608, 2592), "format": "YUV420"}
+)
 
 picam2.configure(config)
 
@@ -74,7 +78,7 @@ distortion_coefficients = np.array([ -0.046250204900546286, 0.15249055104559342,
 # padding to avoid stdout Linux buffering to delay the delivery
 # see http://www.pixelbeat.org/programming/stdio_buffering/ for an explanation an potential improvements on this code
 padding = ' ' * 13642
-
+# padding = ''
 c = 0
 while True:
     buffer = picam2.capture_buffer("lores")
