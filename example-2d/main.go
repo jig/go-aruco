@@ -9,8 +9,6 @@ import (
 	"github.com/jig/go-aruco"
 )
 
-const markerID = 6
-
 func main() {
 	pythonAruco, err := aruco.New()
 	if err != nil {
@@ -33,7 +31,7 @@ func main() {
 	go func() {
 		pythonAruco.Dispatch(func(markers aruco.Markers) {
 			for _, marker := range markers {
-				log.Printf("Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f°\n", markerID, marker.Z*100, marker.X*100, marker.PitchY)
+				log.Printf("Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f°\n", marker.ID, marker.Z*100, marker.X*100, marker.PitchY)
 			}
 		})
 		wg.Done()

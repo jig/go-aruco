@@ -12,12 +12,10 @@ go run example-2d/main.go
 [0:40:19.337635443] [8464]  INFO RPI pipeline_base.cpp:1126 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
 [0:40:19.367103990] [8436]  INFO Camera camera.cpp:1197 configuring streams: (0) 4608x2592-XBGR8888 (1) 4608x2592-YUV420 (2) 2304x1296-SBGGR10_CSI2P
 [0:40:19.371836349] [8464]  INFO RPI vc4.cpp:622 Sensor: /base/soc/i2c0mux/i2c@1/imx708@1a - Selected sensor format: 2304x1296-SBGGR10_1X10 - Selected unicam format: 2304x1296-pBAA
-2024/11/02 20:15:03 Marker 6:   Z=99.3cm  X=-4.6cm  pose=5°
-2024/11/02 20:15:03 Marker 6:   Z=101.8cm  X=-5.1cm  pose=-9°
-2024/11/02 20:15:04 Marker 6:   Z=99.5cm  X=-4.6cm  pose=8°
-2024/11/02 20:15:04 Marker 6:   Z=102.6cm  X=-5.2cm  pose=-4°
-2024/11/02 20:15:05 Marker 6:   Z=99.6cm  X=-4.6cm  pose=11°
-2024/11/02 20:15:05 Marker 6:   Z=102.4cm  X=-5.2cm  pose=-0°
+2024/11/02 21:11:39 Marker 7:   Z=99.2cm  X=-4.6cm  pose=6°
+2024/11/02 21:11:39 Marker 6:   Z=103.0cm  X=-5.2cm  pose=7°
+2024/11/02 21:11:40 Marker 7:   Z=100.4cm  X=-4.7cm  pose=-5°
+2024/11/02 21:11:40 Marker 6:   Z=101.8cm  X=-5.1cm  pose=13°
 ^Csignal: interrupt
 ```
 
