@@ -2,7 +2,7 @@ This sample code shows the camera coordinates of the 6x6 Aruco markers in view o
 
 That is a typical situation of a 2D moving camera.
 
-That is the result of static marker #7 on a Raspberry Pi 4 with 2GB of RAM:
+That is the result of static marker #2 on a Raspberry Pi 4 with 2GB of RAM with a Raspberry Pi Camera Module 3 Wide:
 
 ```bash
 go run example-2d/main.go
