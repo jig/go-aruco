@@ -13,27 +13,10 @@ func TestSleep1s(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	errored := true
-	go func() {
-		for data := range cmd.Output() {
-			if !data.IsStderr {
-				if data.EOF {
-					errored = false
-					return
-				}
-			}
-		}
-	}()
-	exitCode, err := cmd.Run()
-	if err != nil {
-		t.Fatal(1)
-	}
-	if exitCode != 0 {
-		t.Fatal(1)
-	}
-	if errored {
-		t.Fatal(1)
-	}
+	msgs := run(t, cmd, 0)
+
+	assert.Equal(t, 1, len(msgs))
+	assert.True(t, msgs[0].EOF)
 }
 
 func TestPrintln(t *testing.T) {
@@ -42,23 +25,7 @@ func TestPrintln(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	msgs := []Data{}
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		for msg := range cmd.Output() {
-			msgs = append(msgs, msg)
-		}
-		wg.Done()
-	}()
-	exitCode, err := cmd.Run()
-	if err != nil {
-		t.Fatal(1)
-	}
-	if exitCode != 0 {
-		t.Fatal(1)
-	}
-	wg.Wait()
+	msgs := run(t, cmd, 0)
 
 	assert.Equal(t, len(msgs), 3)
 	assert.Equal(t, msgs[0].Value, "Hello World!")
@@ -74,54 +41,29 @@ func TestExit1(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	errored := false
-	go func() {
-		for range cmd.Output() {
-			errored = true
-		}
-	}()
-	exitCode, err := cmd.Run()
-	if err != nil {
-		t.Fatal(1)
-	}
-	if exitCode != 1 {
-		t.Fatal(1)
-	}
-	if errored {
-		t.Fatal(1)
-	}
+	msgs := run(t, cmd, 1)
+
+	assert.Equal(t, len(msgs), 2)
+	assert.Equal(t, msgs[0].Value, "exit status 1")
+	assert.True(t, msgs[0].IsStderr)
+	assert.True(t, msgs[1].EOF)
 }
 
-// func TestStderr(t *testing.T) {
-// 	cmd, err := NewCmd("go", "run", "./testcode4/stderr.go")
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+func TestStderr(t *testing.T) {
+	cmd, err := NewCmd("go", "run", "./testcode4/stderr.go")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	errored := false
-// 	go func() {
-// 		for range cmd.Output() {
-// 			errored = true
-// 		}
-// 		if <-cmd.Output() != "Hello Stderr!" {
-// 			errored = true
-// 			return
-// 		}
-// 		if <-cmd.Stderr() == "Hello errors!" {
-// 			errored = false
-// 		}
-// 	}()
-// 	exitCode, err := cmd.Run()
-// 	if err != nil {
-// 		t.Fatal(1)
-// 	}
-// 	if exitCode != 0 {
-// 		t.Fatal(1)
-// 	}
-// 	if errored {
-// 		t.Fatal(1)
-// 	}
-// }
+	msgs := run(t, cmd, 0)
+
+	assert.Equal(t, len(msgs), 3)
+	assert.Equal(t, msgs[0].Value, "Hello Stderr!")
+	assert.True(t, msgs[0].IsStderr)
+	assert.Equal(t, msgs[1].Value, "Hello errors!")
+	assert.True(t, msgs[1].IsStderr)
+	assert.True(t, msgs[2].EOF)
+}
 
 func TestStdin(t *testing.T) {
 	cmd, err := NewCmd("go", "run", "./testcode5/stdin.go")
@@ -131,13 +73,11 @@ func TestStdin(t *testing.T) {
 	go func() {
 		cmd.Write("example\n")
 	}()
-	exitCode, err := cmd.Run()
-	if err != nil {
-		t.Fatal(1)
-	}
-	if exitCode != 0 {
-		t.Fatal(1)
-	}
+
+	msgs := run(t, cmd, 0)
+
+	assert.Equal(t, 1, len(msgs))
+	assert.True(t, msgs[0].EOF)
 }
 
 func TestStdinFail(t *testing.T) {
@@ -148,11 +88,32 @@ func TestStdinFail(t *testing.T) {
 	go func() {
 		cmd.Write("bogus\n")
 	}()
+
+	msgs := run(t, cmd, 1)
+
+	assert.Equal(t, len(msgs), 2)
+	assert.Equal(t, msgs[0].Value, "exit status 1")
+	assert.True(t, msgs[0].IsStderr)
+	assert.True(t, msgs[1].EOF)
+}
+
+func run(t *testing.T, cmd *Cmd, exitCode int) []Data {
+	msgs := []Data{}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		for msg := range cmd.Output() {
+			msgs = append(msgs, msg)
+		}
+		wg.Done()
+	}()
 	exitCode, err := cmd.Run()
 	if err != nil {
 		t.Fatal(1)
 	}
-	if exitCode != 1 {
+	if exitCode != exitCode {
 		t.Fatal(1)
 	}
+	wg.Wait()
+	return msgs
 }
