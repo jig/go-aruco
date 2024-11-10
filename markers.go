@@ -1,17 +1,13 @@
 package aruco
 
 import (
-	"bufio"
 	_ "embed"
 	"errors"
-	"os/exec"
+	"math"
 )
 
 type Task struct {
 	MarkersChannel chan Markers
-
-	cmd     *exec.Cmd
-	scanner *bufio.Scanner
 }
 
 type Markers []Marker
@@ -33,4 +29,16 @@ func (markers Markers) Marker(id int) (*Marker, error) {
 		}
 	}
 	return nil, errors.New("not found")
+}
+
+func (m *Marker) GetDistanceXZ() float64 {
+	return math.Sqrt(m.X*m.X + m.Z*m.Z)
+}
+
+func (m *Marker) GetDistanceXYZ() float64 {
+	return math.Sqrt(m.X*m.X + m.Y*m.Y + m.Z*m.Z)
+}
+
+func (m *Marker) GetPoseY() float64 {
+	return m.PitchY
 }
