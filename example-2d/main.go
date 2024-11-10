@@ -31,7 +31,14 @@ func main() {
 	go func() {
 		pythonAruco.Dispatch(func(markers aruco.Markers) {
 			for _, marker := range markers {
-				log.Printf("Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f°\n", marker.ID, marker.Z*100, marker.X*100, marker.PitchY)
+				log.Printf(
+					"Marker %d:   Z=%.1fcm  X=%.1fcm  pose=%.0f° (h=%.1fcm)\n",
+					marker.ID,
+					marker.Z*100,
+					marker.X*100,
+					marker.PitchY,
+					marker.Y*100,
+				)
 			}
 		})
 		wg.Done()
